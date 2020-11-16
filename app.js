@@ -1,5 +1,5 @@
 const express = require('express');
-const port = 4545;
+const port = process.env.port || 4546;
 const app = express();
 const router = require('./route/route');
 
