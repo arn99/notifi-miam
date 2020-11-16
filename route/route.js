@@ -7,7 +7,7 @@ const headersWebPush = { 'Authorization': process.env.WEBPUSH_AUTHORIZATION,
 const express = require('express');
 const router = express.Router();
 
-router.post('/', (req, res, next) => {
+router.get('/', (req, res, next) => {
     res.send({
         success: false,
         message: 'yoo ca se passe',
