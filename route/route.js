@@ -22,7 +22,14 @@ router.post('/telegram', (req, res, next) => {
 // route to connect web push notification service
 router.post('/webpush', (req, res, next) => {
     const { data } = req.body.body;
-    sendNotificationToDeviceBYWebPush(data).catch(console.error);;
+    sendNotificationToDeviceBYWebPush(data).then(response => {
+        res.send({
+            success: false,
+            message: response,
+            test: 'ok'
+          });
+    })
+    .catch(console.error);;
 });
 
 module.exports = router;
@@ -30,10 +37,11 @@ module.exports = router;
 // send message to telegram group
 async function sendHttpNotificationTelegramGroup(data) {
     const messages = data;
-    axios.post('https://api.telegram.org/' + process.env.TELEGRAM_AUTHORIZATION + '/sendMessage?chat_id=-456312332&text=' +
+    return axios.post('https://api.telegram.org/' + process.env.TELEGRAM_AUTHORIZATION + '/sendMessage?chat_id=-456312332&text=' +
     messages, '').then(res => {
         console.log(`statusCode: ${res.statusCode}`)
         console.log(res.data)
+        return res.data
       })
       .catch(error => {
         console.error(error)
@@ -58,11 +66,12 @@ async function sendNotificationToDeviceBYWebPush(data) {
     const body = messages;
 
 
-    axios.post('https://fcm.googleapis.com/fcm/send', 
+    return axios.post('https://fcm.googleapis.com/fcm/send', 
        body,
         {headers: headersWebPush }).then(res => {
         console.log(`statusCode: ${res.statusCode}`)
         console.log(res.data)
+        return res.data
       })
       .catch(error => {
         console.error(error)
