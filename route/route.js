@@ -7,6 +7,13 @@ const headersWebPush = { 'Authorization': process.env.WEBPUSH_AUTHORIZATION,
 const express = require('express');
 const router = express.Router();
 
+router.post('/', (req, res, next) => {
+    res.send({
+        success: false,
+        message: 'yoo ca se passe',
+        test: 'ok'
+      });
+});
 // route to connect telegram notification service
 router.post('/telegram', (req, res, next) => {
     const data  = req.body.body;
