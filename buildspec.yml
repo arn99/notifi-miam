@@ -1,0 +1,14 @@
+version: 0.2
+
+phases:
+  pre_build:
+    commands:
+      - npm install newman --global
+      - npm install newman-reporter-html --global
+  build:
+    commands:
+      - newman run -r json,junit,html,cli ./newman/notify.postman_collection.json -e ./newman/notify.postman_environment.json --reporter-html-export report.html
+
+artifacts:
+  files:
+    - report.html

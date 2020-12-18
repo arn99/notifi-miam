@@ -1,15 +1,28 @@
 'use strict';
 
-require('dotenv').config();
+const config = require('../config/config.js');
 const axios = require('axios')
 const headersWebPush = { 'Authorization': process.env.WEBPUSH_AUTHORIZATION,
     'Content-Type': 'application/json' };
 const express = require('express');
 const router = express.Router();
+const AWS = require('aws-sdk');
+var queueUrl = "https://sqs.us-east-1.amazonaws.com/073844720199/notify-order";
+var isDev = true;
 
+if (process.env.NODE_ENV == "production") {
+  isDev = false;
+}
+if (isDev) {
+  console.log('isDev');
+  AWS.config.update(config.aws_local_config);
+} else {
+  console.log('isProd');
+  AWS.config.update(config.aws_remote_config);
+}
 router.get('/', (req, res, next) => {
     res.send({
-        success: false,
+        success: true,
         message: 'yoo ca se passe',
         test: 'ok'
       });
@@ -77,3 +90,37 @@ async function sendNotificationToDeviceBYWebPush(data) {
         console.error(error)
       });
   };
+
+  var params = {
+    AttributeNames: [
+       "SentTimestamp"
+    ],
+    MaxNumberOfMessages: 10,
+    MessageAttributeNames: [
+       "All"
+    ],
+    QueueUrl: queueUrl,
+    VisibilityTimeout: 20,
+    WaitTimeSeconds: 0
+   };
+   
+   /** receive aws sqs message */
+   var sqs = new AWS.SQS({apiVersion: '2012-11-05'});
+   sqs.receiveMessage(params, function(err, data) {
+    if (err) {
+      console.log("Receive Error", err);
+    } else if (data.Messages) {
+      console.log(JSON.parse(data.Messages))
+      var deleteParams = {
+        QueueUrl: queueURL,
+        ReceiptHandle: data.Messages[0].ReceiptHandle
+      };
+      sqs.deleteMessage(deleteParams, function(err, data) {
+        if (err) {
+          console.log("Delete Error", err);
+        } else {
+          console.log("Message Deleted", data);
+        }
+      });
+    }
+   });
