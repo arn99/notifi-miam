@@ -1,5 +1,4 @@
 'use strict';
-var cors = require('cors');
 const config = require('../config/config.js');
 const axios = require('axios')
 const headersWebPush = { 'Authorization': process.env.WEBPUSH_AUTHORIZATION,
@@ -9,11 +8,6 @@ const router = express.Router();
 const AWS = require('aws-sdk');
 var queueUrl = "https://sqs.us-east-1.amazonaws.com/073844720199/notify-order";
 var isDev = false;
-const frontend = 'https://miam-bf.netlify.app'
-const app = express();
-
-app.use(express.json());
-app.use(cors({origin: frontend}));
 if (process.env.NODE_ENV == "production") {
   isDev = false;
 }
