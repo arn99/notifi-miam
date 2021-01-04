@@ -9,7 +9,9 @@ const router = express.Router();
 const AWS = require('aws-sdk');
 var queueUrl = "https://sqs.us-east-1.amazonaws.com/073844720199/notify-order";
 var isDev = true;
-
+const frontend = 'https://miam-bf.netlify.app/'
+app.use(express.json());
+app.use(cors({origin: frontend}));
 if (process.env.NODE_ENV == "production") {
   isDev = false;
 }
@@ -95,12 +97,12 @@ async function sendNotificationToDeviceBYWebPush(data) {
     AttributeNames: [
        "SentTimestamp"
     ],
-    MaxNumberOfMessages: 10,
+    MaxNumberOfMessages: 1,
     MessageAttributeNames: [
        "All"
     ],
     QueueUrl: queueUrl,
-    VisibilityTimeout: 20,
+    VisibilityTimeout: 1,
     WaitTimeSeconds: 0
    };
    
@@ -110,7 +112,15 @@ async function sendNotificationToDeviceBYWebPush(data) {
     if (err) {
       console.log("Receive Error", err);
     } else if (data.Messages) {
-      console.log(JSON.parse(data.Messages))
+      sendNotificationToDeviceBYWebPush(data.Messages[0].body).then(response => {
+        res.send({
+            success: false,
+            message: response,
+            test: 'ok'
+          });
+    })
+    .catch(console.error);;
+    sendHttpNotificationTelegramGroup(data.Messages[0].body);
       var deleteParams = {
         QueueUrl: queueURL,
         ReceiptHandle: data.Messages[0].ReceiptHandle
