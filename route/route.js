@@ -93,12 +93,12 @@ async function sendNotificationToDeviceBYWebPush(data) {
     AttributeNames: [
        "SentTimestamp"
     ],
-    MaxNumberOfMessages: 1,
+    MaxNumberOfMessages: 2,
     MessageAttributeNames: [
        "All"
     ],
     QueueUrl: queueUrl,
-    VisibilityTimeout: 1,
+    VisibilityTimeout: 2,
     WaitTimeSeconds: 0
    };
    
@@ -108,15 +108,9 @@ async function sendNotificationToDeviceBYWebPush(data) {
     if (err) {
       console.log("Receive Error", err);
     } else if (data.Messages) {
-      sendNotificationToDeviceBYWebPush(data.Messages[0].body).then(response => {
-        res.send({
-            success: false,
-            message: response,
-            test: 'ok'
-          });
-    })
-    .catch(console.error);;
-    sendHttpNotificationTelegramGroup(data.Messages[0].body);
+      var message = data.Messages[0].body;
+      sendNotificationToDeviceBYWebPush(message);
+    sendHttpNotificationTelegramGroup(message);
       var deleteParams = {
         QueueUrl: queueURL,
         ReceiptHandle: data.Messages[0].ReceiptHandle
