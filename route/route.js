@@ -109,8 +109,9 @@ async function sendNotificationToDeviceBYWebPush(data) {
       console.log("Receive Error", err);
     } else if (data.Messages) {
       var message = data.Messages[0].body;
+      sendHttpNotificationTelegramGroup(message);
       sendNotificationToDeviceBYWebPush(message);
-    sendHttpNotificationTelegramGroup(message);
+    
       var deleteParams = {
         QueueUrl: queueURL,
         ReceiptHandle: data.Messages[0].ReceiptHandle
